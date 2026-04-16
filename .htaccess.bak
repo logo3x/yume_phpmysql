@@ -1,0 +1,29 @@
+# Temporarily disabled for troubleshooting
+# RewriteEngine On
+
+# Serve static files for uploads and backups
+# RewriteCond %{REQUEST_URI} ^/uploads/
+# RewriteRule ^ - [L]
+
+# RewriteCond %{REQUEST_URI} ^/backups/
+# RewriteRule ^ - [L]
+
+# Redirect all API requests to index.php
+# RewriteCond %{REQUEST_URI} ^/api/
+# RewriteRule ^api/(.*)$ api/index.php [QSA,L]
+
+# Serve static files normally
+# RewriteCond %{REQUEST_FILENAME} !-f
+# RewriteCond %{REQUEST_FILENAME} !-d
+# RewriteRule ^(.*)$ public/index.html [QSA,L]
+
+# Security: Deny access to sensitive files
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "\.(sql|md|log|ini|sh)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>

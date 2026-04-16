@@ -1,0 +1,28 @@
+# Archivos de configuración sensible
+.env
+config/local.php
+
+# Backups (opcional, descomentar si se desea versionar)
+# backups/
+
+# Uploads
+uploads/*
+!uploads/.gitkeep
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+*.tmp
+*.cache

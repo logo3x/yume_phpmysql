@@ -1,0 +1,107 @@
+============================================
+DIAGNÓSTICO - Error 500 en Apache/WAMP
+============================================
+
+El problema es de configuración de Apache, no del código PHP.
+
+Sigue estos pasos:
+
+============================================
+PASO 1: Verificar que WAMP funciona
+============================================
+
+1. Abre tu navegador y ve a: http://localhost
+
+   ¿Ves la página de WAMP?
+   - SÍ → Continúa al PASO 2
+   - NO → WAMP no está ejecutándose correctamente
+          → Haz clic en el ícono de WAMP → "Restart All Services"
+
+============================================
+PASO 2: Verificar el directorio
+============================================
+
+La carpeta del proyecto está en:
+c:\wamp64\www\yume-main
+
+En el navegador debe ser:
+http://localhost/yume-main/test.html
+
+Si ves el HTML simple, Apache funciona pero hay problema con PHP.
+
+============================================
+PASO 3: Verificar configuración de Apache
+============================================
+
+1. Haz clic en el ícono de WAMP (bandeja del sistema)
+2. Ve a "Apache" → "httpd.conf"
+3. Busca esta línea:
+   
+   DocumentRoot "c:/wamp64/www"
+   
+4. Y también busca:
+
+   <Directory "c:/wamp64/www">
+       Options Indexes FollowSymLinks
+       AllowOverride All
+       Require all granted
+   </Directory>
+
+   Si AllowOverride dice "None", cámbialo a "All"
+
+5. Guarda el archivo y reinicia Apache
+
+============================================
+PASO 4: Verificar mod_fcgid
+============================================
+
+Tu servidor usa mod_fcgid. Puede haber un problema de configuración.
+
+1. Haz clic en el ícono de WAMP
+2. Ve a "Apache" → "Modules" 
+3. Busca "fcgid_module"
+4. Si está marcado, intenta desmarcarlo temporalmente
+5. Reinicia Apache
+
+============================================
+PASO 5: Verificar PHP funciona
+============================================
+
+1. Ve a: c:\wamp64\www
+2. Crea un archivo: info.php
+3. Contenido: <?php phpinfo(); ?>
+4. Accede: http://localhost/info.php
+
+   ¿Ves la información de PHP?
+   - SÍ → PHP funciona, el problema es específico de yume-main
+   - NO → PHP no está configurado correctamente en Apache
+
+============================================
+SOLUCIÓN ALTERNATIVA RÁPIDA
+============================================
+
+Si no puedes resolver el problema de Apache, puedes importar la base de datos manualmente:
+
+1. Abre phpMyAdmin: http://localhost/phpmyadmin
+2. Haz clic en "Nuevo" o "New"
+3. Nombre: yume_negocio
+4. Collation: utf8mb4_unicode_ci
+5. Haz clic en "Crear"
+6. Selecciona la base de datos "yume_negocio"
+7. Ve a la pestaña "Importar" o "Import"
+8. Haz clic en "Seleccionar archivo"
+9. Busca: c:\wamp64\www\yume-main\config\schema.sql
+10. Haz clic en "Continuar" o "Go"
+
+Después de importar, configura config/database.php y accede al sistema.
+
+============================================
+CONTACTAR SOPORTE
+============================================
+
+Si nada funciona, revisa:
+- c:\wamp64\logs\error.log (últimas líneas)
+- c:\wamp64\logs\apache_error.log
+- Consola de eventos de Windows (visor de eventos)
+
+============================================
