@@ -1,31 +1,21 @@
 RewriteEngine On
+RewriteBase /
 
-# Redirect all requests to index.php for SPA routing
+# API routing - route /api/* to api/index.php
+RewriteCond %{REQUEST_URI} ^/api/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^api/(.*)$ api/index.php?_route=$1 [QSA,L]
+
+# Serve static files (css, js, images)
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Serve directories (uploads, backups)
+RewriteCond %{REQUEST_URI} ^/(uploads|backups)/
+RewriteRule ^ - [L]
+
+# Everything else -> index.php (SPA)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php [L]
-
-# Security: Deny access to sensitive files
-<FilesMatch "^\.">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
-
-<FilesMatch "\.(sql|md|log|ini|sh)$">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
-
-# Security: Deny access to config files
-<Files "config/*">
-    Order allow,deny
-    Deny from all
-</Files>
-
-# Security: Deny access to api files except index.php
-<FilesMatch "^((?!index\.php).)*$">
-    <If "%{REQUEST_URI} =~ m#^/api/#">
-        Order allow,deny
-        Deny from all
-    </If>
-</FilesMatch>
