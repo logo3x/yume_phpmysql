@@ -5,7 +5,7 @@ let userPermissions = {};
 let isAdmin = false;
 
 const BASE_PATH = '/';
-const API_BASE = BASE_PATH + 'api/index.php?_route=';
+const API_BASE = BASE_PATH + 'index.php?_route=api/';
 
 function applyPermissions(perms, admin) {
   userPermissions = perms || {};
@@ -107,14 +107,13 @@ async function api(url, options = {}) {
   try {
     let fullUrl;
     if (url.startsWith('/api/')) {
-      // Convert /api/route to /api/index.php?_route=route
-      const [path, query] = url.replace('/api/', '').split('?');
-      fullUrl = BASE_PATH + '/api/index.php?_route=' + path + (query ? '&' + query : '');
+      // Route through index.php to api
+      const apiPath = url.replace('/api/', '');
+      fullUrl = BASE_PATH + 'index.php?_route=' + apiPath;
     } else if (url.startsWith('/')) {
       fullUrl = BASE_PATH + url;
     } else {
-      const [path, query] = url.split('?');
-      fullUrl = API_BASE + path + (query ? '&' + query : '');
+      fullUrl = BASE_PATH + 'index.php?_route=' + url;
     }
     const res = await fetch(fullUrl, { credentials: "include", ...options });
     const contentType = res.headers.get("content-type");
@@ -1366,12 +1365,12 @@ function updateButtonPermissions() {
 }
 
 function exportData(type) {
-  window.open(`${BASE_PATH}/api/index.php?_route=export/${type}`, "_blank");
+  window.open(`${BASE_PATH}index.php?_route=export/${type}`, "_blank");
   showToast(`Exportando ${type}...`);
 }
 
 function downloadTemplate(type) {
-  window.open(`${BASE_PATH}/api/index.php?_route=template/${type}`, "_blank");
+  window.open(`${BASE_PATH}index.php?_route=template/${type}`, "_blank");
   showToast(`Descargando plantilla ${type}...`);
 }
 
@@ -1503,7 +1502,7 @@ async function createBackup() {
 }
 
 function downloadBackup(filename) {
-  window.open(`${BASE_PATH}/api/index.php?_route=backups/download&file=${encodeURIComponent(filename)}`, "_blank");
+  window.open(`${BASE_PATH}index.php?_route=backups/download&file=${encodeURIComponent(filename)}`, "_blank");
 }
 
 async function initAuth() {
