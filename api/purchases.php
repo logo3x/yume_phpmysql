@@ -67,4 +67,50 @@ if ($method === 'POST') {
     jsonResponse(['id' => $newId, 'total_invested' => $totalInvested]);
 }
 
+// ============================================
+// DELETE /api/purchases/:id - Eliminar compra (revierte stock y egreso de caja)
+// ============================================
+if ($method === 'DELETE') {
+    $id = (int)($_GET['id'] ?? 0);
+    if ($id <= 0) {
+        errorResponse('ID inválido', 400);
+    }
+
+    $stmt = $pdo->prepare("SELECT * FROM purchases WHERE id = ?");
+    $stmt->execute([$id]);
+    $purchase = $stmt->fetch();
+
+    if (!$purchase) {
+        errorResponse('Compra no encontrada', 404);
+    }
+
+    $pdo->beginTransaction();
+    try {
+        // Revertir stock del producto (sin dejar negativos)
+        $stmt = $pdo->prepare("UPDATE products SET stock = GREATEST(stock - ?, 0) WHERE id = ?");
+        $stmt->execute([$purchase['quantity'], $purchase['product_id']]);
+
+        // Eliminar movimiento de caja asociado (egreso generado al crear la compra)
+        $stmt = $pdo->prepare("
+            DELETE FROM cash_movements
+            WHERE type = 'Egreso'
+              AND category = 'Compra de productos'
+              AND movement_date = ?
+              AND amount = ?
+            LIMIT 1
+        ");
+        $stmt->execute([$purchase['purchase_date'], $purchase['total_invested']]);
+
+        // Eliminar la compra
+        $stmt = $pdo->prepare("DELETE FROM purchases WHERE id = ?");
+        $stmt->execute([$id]);
+
+        $pdo->commit();
+        successResponse();
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        errorResponse('Error al eliminar compra: ' . $e->getMessage(), 500);
+    }
+}
+
 errorResponse('Método no permitido', 405);

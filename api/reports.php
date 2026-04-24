@@ -129,4 +129,4 @@ if ($method === 'GET' && $action === 'filtered') {
     ]);
 }
 
-errorResponse('Ruta no encontrada', 404);
+errorResponse('Acción de reporte no encontrada: ' . ($action ?: 'vacía') . ' (método ' . $method . ')', 404);

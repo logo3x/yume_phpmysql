@@ -43,33 +43,51 @@ switch (true) {
         require __DIR__ . '/admin.php';
         break;
     
-    // Products
-    case $route === 'products':
+    // Products (admite /products y /products/{id})
+    case $route === 'products' || strpos($route, 'products/') === 0:
+        if (strpos($route, 'products/') === 0) {
+            $_GET['id'] = (int)str_replace('products/', '', $route);
+        }
         require __DIR__ . '/products.php';
         break;
-    
-    // Clients
-    case $route === 'clients':
+
+    // Clients (admite /clients y /clients/{id})
+    case $route === 'clients' || strpos($route, 'clients/') === 0:
+        if (strpos($route, 'clients/') === 0) {
+            $_GET['id'] = (int)str_replace('clients/', '', $route);
+        }
         require __DIR__ . '/clients.php';
         break;
-    
-    // Purchases
-    case $route === 'purchases':
+
+    // Purchases (admite /purchases y /purchases/{id})
+    case $route === 'purchases' || strpos($route, 'purchases/') === 0:
+        if (strpos($route, 'purchases/') === 0) {
+            $_GET['id'] = (int)str_replace('purchases/', '', $route);
+        }
         require __DIR__ . '/purchases.php';
         break;
-    
-    // Sales
-    case $route === 'sales':
+
+    // Sales (admite /sales y /sales/{id})
+    case $route === 'sales' || strpos($route, 'sales/') === 0:
+        if (strpos($route, 'sales/') === 0) {
+            $_GET['id'] = (int)str_replace('sales/', '', $route);
+        }
         require __DIR__ . '/sales.php';
         break;
-    
-    // Shipments
-    case $route === 'shipments':
+
+    // Shipments (admite /shipments y /shipments/{id})
+    case $route === 'shipments' || strpos($route, 'shipments/') === 0:
+        if (strpos($route, 'shipments/') === 0) {
+            $_GET['id'] = (int)str_replace('shipments/', '', $route);
+        }
         require __DIR__ . '/shipments.php';
         break;
-    
-    // Cash movements
-    case $route === 'cash-movements':
+
+    // Cash movements (admite /cash-movements y /cash-movements/{id})
+    case $route === 'cash-movements' || strpos($route, 'cash-movements/') === 0:
+        if (strpos($route, 'cash-movements/') === 0) {
+            $_GET['id'] = (int)str_replace('cash-movements/', '', $route);
+        }
         require __DIR__ . '/cash-movements.php';
         break;
     

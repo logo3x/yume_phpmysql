@@ -62,4 +62,19 @@ if ($method === 'GET') {
     jsonResponse($movements);
 }
 
+// ============================================
+// DELETE /api/cash-movements/:id - Eliminar movimiento
+// ============================================
+if ($method === 'DELETE') {
+    $id = (int)($_GET['id'] ?? 0);
+    if ($id <= 0) {
+        errorResponse('ID inválido', 400);
+    }
+
+    $stmt = $pdo->prepare("DELETE FROM cash_movements WHERE id = ?");
+    $stmt->execute([$id]);
+
+    successResponse();
+}
+
 errorResponse('Método no permitido', 405);
