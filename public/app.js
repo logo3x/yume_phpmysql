@@ -668,11 +668,7 @@ async function refreshReports() {
         scales: {
           x: {
             beginAtZero: true,
-            ticks: {
-              stepSize: 1,
-              precision: 0,
-              callback: v => Number.isInteger(v) ? v : null
-            }
+            ticks: { stepSize: 1, precision: 0 }
           },
           y: { ticks: { autoSkip: false } }
         }
@@ -690,11 +686,9 @@ async function loadUnifiedChart() {
     const startDate = document.getElementById("reportStartDate")?.value || "";
     const endDate = document.getElementById("reportEndDate")?.value || "";
     
-    let url = "/api/reports/filtered";
-    const params = [];
-    if (startDate) params.push(`start_date=${startDate}`);
-    if (endDate) params.push(`end_date=${endDate}`);
-    if (params.length > 0) url += "?" + params.join("&");
+    let url = "/api/reports?action=filtered";
+    if (startDate) url += `&start_date=${encodeURIComponent(startDate)}`;
+    if (endDate) url += `&end_date=${encodeURIComponent(endDate)}`;
     
     const data = await api(url);
     
@@ -732,11 +726,7 @@ async function loadUnifiedChart() {
             title: { display: true, text: "Cantidad" },
             grid: { drawOnChartArea: false },
             beginAtZero: true,
-            ticks: {
-              stepSize: 1,
-              precision: 0,
-              callback: v => Number.isInteger(v) ? v : null
-            }
+            ticks: { stepSize: 1, precision: 0 }
           }
         }
       }

@@ -96,10 +96,11 @@ switch (true) {
         require __DIR__ . '/cash-summary.php';
         break;
     
-    // Reports
-    case strpos($route, 'reports/') === 0:
-        $action = str_replace('reports/', '', $route);
-        $_GET['action'] = $action;
+    // Reports (admite /reports?action=X y /reports/X)
+    case $route === 'reports' || strpos($route, 'reports/') === 0:
+        if (strpos($route, 'reports/') === 0) {
+            $_GET['action'] = str_replace('reports/', '', $route);
+        }
         require __DIR__ . '/reports.php';
         break;
     
