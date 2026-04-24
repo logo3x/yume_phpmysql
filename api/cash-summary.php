@@ -19,7 +19,9 @@ if ($method === 'GET') {
     $expenses = $pdo->query("SELECT COALESCE(SUM(amount),0) as v FROM cash_movements WHERE type = 'Egreso'")->fetch()['v'];
     
     $initialInvestment = (float)($settings['initial_investment'] ?? 0);
-    $current = $initialInvestment + (float)$incomes - (float)$expenses;
+    // Caja = Ingresos por ventas - Egresos.
+    // La inversión inicial es capital inmovilizado en inventario, no efectivo disponible.
+    $current = (float)$incomes - (float)$expenses;
     
     jsonResponse([
         'initial_investment' => $initialInvestment,

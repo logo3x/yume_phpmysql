@@ -662,7 +662,21 @@ async function refreshReports() {
     topProductsChart = new Chart(document.getElementById("topProductsChart"), {
       type: "bar",
       data: { labels: topLabels, datasets: [{ label: "Cantidad Vendida", data: topQty, backgroundColor: "#06b6d4" }] },
-      options: { ...chartOptions, indexAxis: "y" }
+      options: {
+        ...chartOptions,
+        indexAxis: "y",
+        scales: {
+          x: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1,
+              precision: 0,
+              callback: v => Number.isInteger(v) ? v : null
+            }
+          },
+          y: { ticks: { autoSkip: false } }
+        }
+      }
     });
     
     await loadUnifiedChart();
@@ -673,8 +687,8 @@ async function refreshReports() {
 
 async function loadUnifiedChart() {
   try {
-    const startDate = document.getElementById("reportStartDate").value;
-    const endDate = document.getElementById("reportEndDate").value;
+    const startDate = document.getElementById("reportStartDate")?.value || "";
+    const endDate = document.getElementById("reportEndDate")?.value || "";
     
     let url = "/api/reports/filtered";
     const params = [];
@@ -711,7 +725,19 @@ async function loadUnifiedChart() {
         },
         scales: {
           y: { type: "linear", display: true, position: "left", title: { display: true, text: "Pesos ($)" } },
-          y1: { type: "linear", display: true, position: "right", title: { display: true, text: "Cantidad" }, grid: { drawOnChartArea: false } }
+          y1: {
+            type: "linear",
+            display: true,
+            position: "right",
+            title: { display: true, text: "Cantidad" },
+            grid: { drawOnChartArea: false },
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1,
+              precision: 0,
+              callback: v => Number.isInteger(v) ? v : null
+            }
+          }
         }
       }
     });
@@ -721,15 +747,17 @@ async function loadUnifiedChart() {
 }
 
 function applyReportFilter() {
-  const startDate = document.getElementById("reportStartDate").value;
-  const endDate = document.getElementById("reportEndDate").value;
+  const startDate = document.getElementById("reportStartDate")?.value || "";
+  const endDate = document.getElementById("reportEndDate")?.value || "";
   if (!startDate && !endDate) { showToast("Selecciona al menos una fecha", "info"); return; }
   loadUnifiedChart();
 }
 
 function clearReportFilter() {
-  document.getElementById("reportStartDate").value = "";
-  document.getElementById("reportEndDate").value = "";
+  const s = document.getElementById("reportStartDate");
+  const e = document.getElementById("reportEndDate");
+  if (s) s.value = "";
+  if (e) e.value = "";
   loadUnifiedChart();
 }
 
