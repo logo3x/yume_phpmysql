@@ -6,6 +6,7 @@
 require_once __DIR__ . '/helpers.php';
 setCorsHeaders();
 requireAuth();
+extractPathParams();
 
 $method = $_SERVER['REQUEST_METHOD'];
 $pdo = getPDO();
@@ -60,6 +61,27 @@ if ($method === 'GET') {
     $stmt->execute($params);
     $movements = $stmt->fetchAll();
     jsonResponse($movements);
+}
+
+// ============================================
+// DELETE /api/cash-movements/:id - Eliminar movimiento
+// ============================================
+if ($method === 'DELETE') {
+    $id = (int)($_GET['id'] ?? 0);
+    if ($id <= 0) {
+        errorResponse('ID invalido', 400);
+    }
+
+    $stmt = $pdo->prepare("SELECT id FROM cash_movements WHERE id = ?");
+    $stmt->execute([$id]);
+    if (!$stmt->fetch()) {
+        errorResponse('Movimiento no encontrado', 404);
+    }
+
+    $stmt = $pdo->prepare("DELETE FROM cash_movements WHERE id = ?");
+    $stmt->execute([$id]);
+
+    successResponse();
 }
 
 errorResponse('Método no permitido', 405);

@@ -47,6 +47,29 @@ function successResponse($data = []) {
 }
 
 // ============================================
+// Path/Action fallback (cuando Apache sirve los .php por PATH_INFO
+// en vez de pasar por el rewrite a api/index.php)
+// ============================================
+function extractPathParams() {
+    $pi = $_SERVER['PATH_INFO'] ?? '';
+    if ($pi === '') return;
+    $segments = array_values(array_filter(
+        explode('/', trim($pi, '/')),
+        function ($s) { return $s !== ''; }
+    ));
+    if (empty($segments)) return;
+
+    if (ctype_digit($segments[0])) {
+        if (empty($_GET['id'])) $_GET['id'] = (int)$segments[0];
+    } else {
+        if (empty($_GET['action'])) $_GET['action'] = $segments[0];
+        if (count($segments) > 1 && ctype_digit($segments[1]) && empty($_GET['id'])) {
+            $_GET['id'] = (int)$segments[1];
+        }
+    }
+}
+
+// ============================================
 // Input handling
 // ============================================
 function getJsonInput() {

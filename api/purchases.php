@@ -6,6 +6,7 @@
 require_once __DIR__ . '/helpers.php';
 setCorsHeaders();
 requireAuth();
+extractPathParams();
 
 $method = $_SERVER['REQUEST_METHOD'];
 $pdo = getPDO();
@@ -65,6 +66,66 @@ if ($method === 'POST') {
     $stmt->execute([$purchaseDate, $totalInvested, "Compra producto {$product['name']}"]);
     
     jsonResponse(['id' => $newId, 'total_invested' => $totalInvested]);
+}
+
+// ============================================
+// DELETE /api/purchases/:id - Eliminar compra (revierte stock y movimiento de caja)
+// ============================================
+if ($method === 'DELETE') {
+    $id = (int)($_GET['id'] ?? 0);
+    if ($id <= 0) {
+        errorResponse('ID invalido', 400);
+    }
+
+    $stmt = $pdo->prepare("
+        SELECT p.*, pr.name AS product_name, pr.stock AS current_stock
+        FROM purchases p
+        JOIN products pr ON pr.id = p.product_id
+        WHERE p.id = ?
+    ");
+    $stmt->execute([$id]);
+    $purchase = $stmt->fetch();
+
+    if (!$purchase) {
+        errorResponse('Compra no encontrada', 404);
+    }
+
+    $pdo->beginTransaction();
+    try {
+        // Revertir stock (descontar las unidades que la compra había sumado)
+        $newStock = max(0, (int)$purchase['current_stock'] - (int)$purchase['quantity']);
+        $status = getProductStatus($newStock);
+        $stmt = $pdo->prepare("UPDATE products SET stock = ?, status = ? WHERE id = ?");
+        $stmt->execute([$newStock, $status, (int)$purchase['product_id']]);
+
+        // Eliminar el movimiento de caja asociado (match por fecha + monto + categoría + nota)
+        $note = "Compra producto " . $purchase['product_name'];
+        $stmt = $pdo->prepare("
+            DELETE FROM cash_movements
+            WHERE type = 'Egreso'
+              AND category = 'Compra de productos'
+              AND movement_date = ?
+              AND ABS(amount - ?) < 0.01
+              AND notes = ?
+            LIMIT 1
+        ");
+        $stmt->execute([
+            $purchase['purchase_date'],
+            (float)$purchase['total_invested'],
+            $note
+        ]);
+
+        // Eliminar la compra
+        $stmt = $pdo->prepare("DELETE FROM purchases WHERE id = ?");
+        $stmt->execute([$id]);
+
+        $pdo->commit();
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        throw $e;
+    }
+
+    successResponse();
 }
 
 errorResponse('Método no permitido', 405);

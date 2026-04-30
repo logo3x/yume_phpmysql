@@ -662,7 +662,16 @@ async function refreshReports() {
     topProductsChart = new Chart(document.getElementById("topProductsChart"), {
       type: "bar",
       data: { labels: topLabels, datasets: [{ label: "Cantidad Vendida", data: topQty, backgroundColor: "#06b6d4" }] },
-      options: { ...chartOptions, indexAxis: "y" }
+      options: {
+        ...chartOptions,
+        indexAxis: "y",
+        scales: {
+          x: {
+            beginAtZero: true,
+            ticks: { stepSize: 1, precision: 0, callback: v => Number.isInteger(v) ? v : null }
+          }
+        }
+      }
     });
     
     await loadUnifiedChart();
@@ -710,8 +719,18 @@ async function loadUnifiedChart() {
           tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${money(ctx.raw)}` } }
         },
         scales: {
-          y: { type: "linear", display: true, position: "left", title: { display: true, text: "Pesos ($)" } },
-          y1: { type: "linear", display: true, position: "right", title: { display: true, text: "Cantidad" }, grid: { drawOnChartArea: false } }
+          y: {
+            type: "linear", display: true, position: "left",
+            title: { display: true, text: "Pesos ($)" },
+            beginAtZero: true
+          },
+          y1: {
+            type: "linear", display: true, position: "right",
+            title: { display: true, text: "Cantidad" },
+            grid: { drawOnChartArea: false },
+            beginAtZero: true,
+            ticks: { stepSize: 1, precision: 0, callback: v => Number.isInteger(v) ? v : null }
+          }
         }
       }
     });

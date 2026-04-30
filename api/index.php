@@ -53,8 +53,10 @@ switch (true) {
         require __DIR__ . '/clients.php';
         break;
     
-    // Purchases
+    // Purchases (with optional id for DELETE)
     case $route === 'purchases':
+    case preg_match('#^purchases/(\d+)$#', $route, $puM) === 1:
+        if (!empty($puM[1])) $_GET['id'] = (int)$puM[1];
         require __DIR__ . '/purchases.php';
         break;
     
@@ -68,11 +70,13 @@ switch (true) {
         require __DIR__ . '/shipments.php';
         break;
     
-    // Cash movements
+    // Cash movements (with optional id for DELETE)
     case $route === 'cash-movements':
+    case preg_match('#^cash-movements/(\d+)$#', $route, $cmM) === 1:
+        if (!empty($cmM[1])) $_GET['id'] = (int)$cmM[1];
         require __DIR__ . '/cash-movements.php';
         break;
-    
+
     // Cash summary
     case $route === 'cash/summary':
         require __DIR__ . '/cash-summary.php';

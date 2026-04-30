@@ -6,6 +6,7 @@
 require_once __DIR__ . '/helpers.php';
 setCorsHeaders();
 requireAuth();
+extractPathParams();
 
 $method = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['action'] ?? '';
